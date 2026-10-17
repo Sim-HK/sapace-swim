@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Space Swim</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Noto+Sans+KR:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <canvas id="scene"></canvas>
+  <div id="labels"></div>
+
+  <div id="cursor" class="hidden">
+    <svg viewBox="0 0 64 64"><circle class="track" cx="32" cy="32" r="26" /><circle class="prog" cx="32" cy="32" r="26" /></svg>
+    <span class="dot"></span>
+    <span class="tag" id="cursor-tag"></span>
+  </div>
+
+  <header class="hud-top hidden" id="hud-top">
+    <div class="brand">
+      <span class="logo">SPACE SWIM</span>
+      <span class="mode" id="mode-label">우주 유영</span>
+    </div>
+    <div class="top-right">
+      <button class="chip" id="btn-hands">✋ 손 인식 켜기</button>
+      <div class="chip gesture" id="gesture-chip">—</div>
+      <button class="chip icon" id="btn-help" title="조작법">?</button>
+    </div>
+  </header>
+
+  <div id="speed" class="speed hidden"><span id="speed-val">0</span><small>km/s</small></div>
+
+  <aside id="info-card" class="card hidden">
+    <div class="type" id="info-type"></div>
+    <h2 id="info-name"></h2>
+    <div class="en" id="info-en"></div>
+    <p id="info-desc"></p>
+    <dl class="stats" id="info-stats"></dl>
+    <div class="actions">
+      <button id="btn-fly" class="primary">✌️ 하늘 비행하기</button>
+      <button id="btn-back" class="ghost">✊ 우주로 돌아가기</button>
+    </div>
+    <div class="tip">🤏 집은 채로 움직이면 행성이 돌아가요 · 🙌 두 손을 벌리면 확대</div>
+  </aside>
+
+  <div id="flight-hud" class="flight-hud hidden">
+    <div class="fh-name" id="fh-name"></div>
+    <div class="fh-row">
+      <div><small>고도</small><b id="fh-alt">0</b><small>m</small></div>
+      <div><small>속도</small><b id="fh-spd">0</b><small>km/h</small></div>
+    </div>
+    <button id="btn-exit-flight" class="ghost">✊ 궤도로 돌아가기</button>
+  </div>
+  <div id="horizon" class="horizon hidden"><span></span></div>
+
+  <div id="hint" class="hint hidden"></div>
+  <div id="toast" class="toast"></div>
+  <div id="fade" class="fade"></div>
+
+  <div id="cam-wrap" class="cam-wrap hidden">
+    <video id="cam" playsinline muted></video>
+    <canvas id="cam-overlay"></canvas>
+  </div>
+
+  <section id="help" class="help hidden">
+    <div class="help-inner card">
+      <h3>조작법</h3>
+      <div class="cols">
+        <div>
+          <h4>✋ 손 제스처 (웹캠)</h4>
+          <ul>
+            <li><b>✋ 손바닥 펴기</b> 앞으로 헤엄 · 손 위치로 방향 조종</li>
+            <li><b>☝️ 검지만</b> 천천히 헤엄</li>
+            <li><b>🤏 집기</b> 별 잡기 · 집은 채로 끌어서 회전</li>
+            <li><b>✌️ 브이 유지</b> 행성 하늘로 비행</li>
+            <li><b>✊ 주먹</b> 멈춤 · 1초 유지하면 뒤로</li>
+            <li><b>🙌 두 손</b> 벌리면 확대, 모으면 축소</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🖱️ 마우스 · 터치 · 키보드</h4>
+          <ul>
+            <li><b>W / S</b> 앞뒤로 헤엄 · <b>Shift</b> 가속</li>
+            <li><b>드래그</b> 둘러보기 / 행성 회전</li>
+            <li><b>클릭 · 탭</b> 별 잡기</li>
+            <li><b>휠 · 두 손가락</b> 확대 / 축소</li>
+            <li><b>F</b> 하늘 비행 · <b>Esc</b> 뒤로</li>
+            <li><b>비행 중</b> 누른 채로 방향 조종, 방향키도 OK</li>
+          </ul>
+        </div>
+      </div>
+      <button id="btn-help-close" class="primary">계속 여행하기</button>
+    </div>
+  </section>
+
+  <section id="intro" class="intro">
+    <div class="intro-inner">
+      <div class="kicker">TRUMPLER · NEBULA EXPEDITION</div>
+      <h1>SPACE<br />SWIM</h1>
+      <p class="sub">손끝으로 성운을 헤엄치고, 별을 잡아 돌려보고,<br />그 행성의 하늘을 날아보세요.</p>
+      <div class="gesture-row">
+        <div><span>✋</span>헤엄</div>
+        <div><span>🤏</span>잡기</div>
+        <div><span>✌️</span>비행</div>
+        <div><span>✊</span>뒤로</div>
+        <div><span>🙌</span>확대</div>
+      </div>
+      <div class="intro-actions">
+        <button id="btn-start-hands" class="primary big">✋ 손 제스처로 시작</button>
+        <button id="btn-start-mouse" class="ghost big">마우스 · 터치로 시작</button>
+      </div>
+      <p class="note" id="intro-note">웹캠이 필요해요. 영상은 이 브라우저 안에서만 처리되고 어디에도 전송되지 않아요.</p>
+    </div>
+  </section>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
